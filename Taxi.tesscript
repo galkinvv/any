@@ -1,0 +1,32 @@
+scriptname TaxiHorses
+float fQuestDelayTime
+short cabeinuse
+short ChoiceInProgress
+short ChoiceResult
+begin gamemode
+set fQuestDelayTime to .1
+if (ChoiceInProgress == 1)
+	set ChoiceResult to GetButtonPressed
+	if (ChoiceResult != -1)		
+		if (ChoiceResult == 0)
+			TaxiDestination.MoveTo ICStablesMapMarker
+		else
+			TaxiDestination.MoveTo ICStableHandSit
+		endif
+		TaxiCab.AddScriptPackage TaxiTravel
+		set ChoiceInProgress to 0
+	endif
+endif
+if (((player.GetAngle x) < -45) && (cabeinuse != 1))
+	TaxiCab.MoveTo player
+	TaxiCab.Enable
+	MessageBox "Where should I go?", "Bridge", "Tavern"
+	set ChoiceInProgress to 1
+	set cabeinuse to 1
+endif
+if (((player.GetAngle x) > 30)  && (cabeinuse == 1))
+	TaxiCab.RemoveScriptPackage TaxiTravel
+	TaxiCab.Disable
+	set cabeinuse to 0
+endif
+end
