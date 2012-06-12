@@ -6,8 +6,9 @@ short ChoiceResult
 short autotravel
 short onhelperhorse
 float fTmp
+ref copyofplayer
 begin gamemode
-set fQuestDelayTime to .1
+set fQuestDelayTime to .01
 if (ChoiceInProgress == 1)
 	set ChoiceResult to GetButtonPressed
 	if (ChoiceResult != -1)
@@ -20,6 +21,9 @@ if (ChoiceInProgress == 1)
 		endif
 		set ChoiceInProgress to 0
 		set ChoiceResult to -1
+		set copyofplayer to player.createfullactorcopy
+		;TaxiHelper.SetOwnership copyofplayer
+		copyofplayer.AddScriptPackage TaxiTravel
 	endif
 endif
 if (((player.GetAngle x) < -45) && (cabeinuse != 1))
@@ -43,14 +47,14 @@ if ((cabeinuse == 1) && (onhelperhorse == 1))
 endif
 if ((cabeinuse == 1) && (onhelperhorse != 1))
 	if (autotravel == 1)
+		TaxiHelper.SetActorAlpha 1
 		TaxiCab.Disable
 		TaxiCab.RemoveScriptPackage TaxiTravel
 		set autotravel to 0
 	endif
 endif
 if (onhelperhorse == 1)
-	TaxiHelper.MoveTo TaxiCab
-	set fTmp to TaxiCab.GetPos X
+	set fTmp to 250 + TaxiCab.GetPos X
 	TaxiHelper.SetPos X fTmp
 	set fTmp to TaxiCab.GetPos Y
 	TaxiHelper.SetPos Y fTmp
@@ -63,6 +67,7 @@ if (onhelperhorse == 1)
 endif
 if (((player.GetAngle x) > 30) && (cabeinuse == 1) && (autotravel != 1))
 	TaxiHelper.Disable
+	copyofplayer.deletefullactorcopy
 	set cabeinuse to 0
 endif
 end
