@@ -3,6 +3,7 @@ float fQuestDelayTime
 short cabeinuse
 short ChoiceInProgress
 short ChoiceResult
+short autotravel
 begin gamemode
 set fQuestDelayTime to .1
 if (ChoiceInProgress == 1)
@@ -15,7 +16,6 @@ if (ChoiceInProgress == 1)
 		else
 			TaxiDestination.MoveTo LegionGuardOutsideWawnet
 		endif
-		TaxiCab.AddScriptPackage TaxiTravel
 		set ChoiceInProgress to 0
 		set ChoiceResult to -1
 	endif
@@ -27,8 +27,19 @@ if (((player.GetAngle x) < -45) && (cabeinuse != 1))
 	set ChoiceInProgress to 1
 	set cabeinuse to 1
 endif
-if (((player.GetAngle x) > 30)  && (cabeinuse == 1))
-	TaxiCab.RemoveScriptPackage TaxiTravel
+if ((cabeinuse == 1) && (Player.IsRidingHorse == 1))
+	if (autotravel != 1)
+		TaxiCab.AddScriptPackage TaxiTravel
+		set autotravel to 1
+	endif
+endif
+if ((cabeinuse == 1) && (Player.IsRidingHorse != 1))
+	if (autotravel == 1)
+		TaxiCab.RemoveScriptPackage TaxiTravel
+		set autotravel to 0
+	endif
+endif
+if (((player.GetAngle x) > 30) && (cabeinuse == 1) && (autotravel != 1))
 	TaxiCab.Disable
 	set cabeinuse to 0
 endif
