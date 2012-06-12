@@ -4,6 +4,8 @@ short cabeinuse
 short ChoiceInProgress
 short ChoiceResult
 short autotravel
+short onhelperhorse
+float fTmp
 begin gamemode
 set fQuestDelayTime to .1
 if (ChoiceInProgress == 1)
@@ -21,26 +23,46 @@ if (ChoiceInProgress == 1)
 	endif
 endif
 if (((player.GetAngle x) < -45) && (cabeinuse != 1))
-	TaxiCab.MoveTo player
-	TaxiCab.Enable
+	TaxiHelper.MoveTo player
+	TaxiHelper.Enable
 	MessageBox "Where should I go?", "Bridge", "Tavern",  "Weye"
 	set ChoiceInProgress to 1
 	set cabeinuse to 1
 endif
-if ((cabeinuse == 1) && (Player.IsRidingHorse == 1))
+set onhelperhorse to 1
+if (Player.IsRidingHorse != 1) || (TaxiHelper.IsPlayersLastRiddenHorse != 1)
+	set onhelperhorse to 0
+endif
+if ((cabeinuse == 1) && (onhelperhorse == 1))
 	if (autotravel != 1)
+		TaxiCab.MoveTo player
+		TaxiCab.Enable
 		TaxiCab.AddScriptPackage TaxiTravel
 		set autotravel to 1
 	endif
 endif
-if ((cabeinuse == 1) && (Player.IsRidingHorse != 1))
+if ((cabeinuse == 1) && (onhelperhorse != 1))
 	if (autotravel == 1)
+		TaxiCab.Disable
 		TaxiCab.RemoveScriptPackage TaxiTravel
 		set autotravel to 0
 	endif
 endif
+if (onhelperhorse == 1)
+	TaxiHelper.MoveTo TaxiCab
+	set fTmp to TaxiCab.GetPos X
+	TaxiHelper.SetPos X fTmp
+	set fTmp to TaxiCab.GetPos Y
+	TaxiHelper.SetPos Y fTmp
+	set fTmp to TaxiCab.GetPos Z
+	TaxiHelper.SetPos Z fTmp
+	set fTmp to TaxiCab.GetAngle X
+	TaxiHelper.SetAngle X fTmp
+	set fTmp to TaxiCab.GetAngle Z
+	TaxiHelper.SetAngle Z fTmp
+endif
 if (((player.GetAngle x) > 30) && (cabeinuse == 1) && (autotravel != 1))
-	TaxiCab.Disable
+	TaxiHelper.Disable
 	set cabeinuse to 0
 endif
 end
