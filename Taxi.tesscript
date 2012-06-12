@@ -7,20 +7,23 @@ begin gamemode
 set fQuestDelayTime to .1
 if (ChoiceInProgress == 1)
 	set ChoiceResult to GetButtonPressed
-	if (ChoiceResult != -1)		
+	if (ChoiceResult != -1)
 		if (ChoiceResult == 0)
 			TaxiDestination.MoveTo ICStablesMapMarker
-		else
+		elseif (ChoiceResult == 1)
 			TaxiDestination.MoveTo ICStableHandSit
+		else
+			TaxiDestination.MoveTo LegionGuardOutsideWawnet
 		endif
 		TaxiCab.AddScriptPackage TaxiTravel
 		set ChoiceInProgress to 0
+		set ChoiceResult to -1
 	endif
 endif
 if (((player.GetAngle x) < -45) && (cabeinuse != 1))
 	TaxiCab.MoveTo player
 	TaxiCab.Enable
-	MessageBox "Where should I go?", "Bridge", "Tavern"
+	MessageBox "Where should I go?", "Bridge", "Tavern",  "Weye"
 	set ChoiceInProgress to 1
 	set cabeinuse to 1
 endif
