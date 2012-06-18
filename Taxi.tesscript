@@ -5,10 +5,11 @@ short ChoiceInProgress
 short ChoiceResult
 short autotravel
 short onhelperhorse
-float fTmp
+float zangle
+float oldgravity
 ref copyofplayer
-begin gamemode
-set fQuestDelayTime to .01
+begin _gamemode
+set fQuestDelayTime to 0.001
 if (ChoiceInProgress == 1)
 	set ChoiceResult to GetButtonPressed
 	if (ChoiceResult != -1)
@@ -22,52 +23,39 @@ if (ChoiceInProgress == 1)
 		set ChoiceInProgress to 0
 		set ChoiceResult to -1
 		set copyofplayer to player.createfullactorcopy
-		;TaxiHelper.SetOwnership copyofplayer
 		copyofplayer.AddScriptPackage TaxiTravel
+		copyofplayer.SetTravelHorse TaxiCab
+		player.DisablePlayerControls
+		player.SetActorAlpha 0
+		player.con_TCL
+		set cabeinuse to 1
+		let oldgravity := GetLocalGravity Z
+		SetLocalGravity 0
 	endif
 endif
-if (((player.GetAngle x) < -45) && (cabeinuse != 1))
-	TaxiHelper.MoveTo player
-	TaxiHelper.Enable
+if eval (((player.GetAngle x) < -45) && (cabeinuse != 1)  && (ChoiceInProgress != 1))
+	TaxiCab.MoveTo player
+	TaxiCab.Enable
 	MessageBox "Where should I go?", "Bridge", "Tavern",  "Weye"
 	set ChoiceInProgress to 1
-	set cabeinuse to 1
 endif
-set onhelperhorse to 1
-if (Player.IsRidingHorse != 1) || (TaxiHelper.IsPlayersLastRiddenHorse != 1)
-	set onhelperhorse to 0
+if (cabeinuse == 1)
+	let zangle := TaxiCab.GetAngle Z
+	player.SetPos X (TaxiCab.GetPos X) + 100*Cos(zangle)
+	player.SetPos Y (TaxiCab.GetPos Y) + 100*Sin(zangle)
+	player.SetPos Z 50 + TaxiCab.GetPos Z 
+	;player.SetAngle X TaxiCab.GetAngle X
+	player.SetAngle Z zangle
+	player.SetVelocity 0,0,- (GetLocalGravity Z) * ScriptEffectElapsedSeconds
 endif
-if ((cabeinuse == 1) && (onhelperhorse == 1))
-	if (autotravel != 1)
-		TaxiCab.MoveTo player
-		TaxiCab.Enable
-		TaxiCab.AddScriptPackage TaxiTravel
-		set autotravel to 1
-	endif
-endif
-if ((cabeinuse == 1) && (onhelperhorse != 1))
-	if (autotravel == 1)
-		TaxiHelper.SetActorAlpha 1
-		TaxiCab.Disable
-		TaxiCab.RemoveScriptPackage TaxiTravel
-		set autotravel to 0
-	endif
-endif
-if (onhelperhorse == 1)
-	set fTmp to 250 + TaxiCab.GetPos X
-	TaxiHelper.SetPos X fTmp
-	set fTmp to TaxiCab.GetPos Y
-	TaxiHelper.SetPos Y fTmp
-	set fTmp to TaxiCab.GetPos Z
-	TaxiHelper.SetPos Z fTmp
-	set fTmp to TaxiCab.GetAngle X
-	TaxiHelper.SetAngle X fTmp
-	set fTmp to TaxiCab.GetAngle Z
-	TaxiHelper.SetAngle Z fTmp
-endif
-if (((player.GetAngle x) > 30) && (cabeinuse == 1) && (autotravel != 1))
-	TaxiHelper.Disable
+if eval (((player.GetAngle x) > 30) && (cabeinuse == 1) && (autotravel != 1))
+	TaxiCab.Disable
+	copyofplayer.SetTravelHorse player
 	copyofplayer.deletefullactorcopy
+	player.EnablePlayerControls
+	player.SetActorAlpha 1
+	player.con_TCL
+	SetLocalGravity oldgravity
 	set cabeinuse to 0
 endif
 end
