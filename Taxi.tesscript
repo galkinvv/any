@@ -17,8 +17,10 @@ if (ChoiceInProgress == 1)
 			TaxiDestination.MoveTo ICStablesMapMarker
 		elseif (ChoiceResult == 1)
 			TaxiDestination.MoveTo ICStableHandSit
-		else
+		elseif (ChoiceResult == 2)
 			TaxiDestination.MoveTo LegionGuardOutsideWawnet
+		elseif (ChoiceResult == 3)
+			TaxiDestination.MoveTo WeynonHorsePaint1
 		endif
 		set ChoiceInProgress to 0
 		set ChoiceResult to -1
@@ -29,14 +31,14 @@ if (ChoiceInProgress == 1)
 		player.SetActorAlpha 0
 		player.con_TCL
 		set cabeinuse to 1
-		let oldgravity := GetLocalGravity Z
-		SetLocalGravity 0
+ 
+		;SetLocalGravity 0
 	endif
 endif
 if eval (((player.GetAngle x) < -45) && (cabeinuse != 1)  && (ChoiceInProgress != 1))
 	TaxiCab.MoveTo player
 	TaxiCab.Enable
-	MessageBox "Where should I go?", "Bridge", "Tavern",  "Weye"
+	MessageBox "Where should I go?", "Bridge", "Tavern",  "Weye",  "Prior"
 	set ChoiceInProgress to 1
 endif
 if (cabeinuse == 1)
