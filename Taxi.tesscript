@@ -5,8 +5,11 @@ short ChoiceInProgress
 short ChoiceResult
 short autotravel
 short onhelperhorse
-float zangle
-float oldgravity
+float distance_mul
+float x_wanted
+float y_wanted
+float z_wanted
+float angle_wanted
 ref copyofplayer
 begin _gamemode
 set fQuestDelayTime to 0.001
@@ -24,31 +27,45 @@ if (ChoiceInProgress == 1)
 		endif
 		set ChoiceInProgress to 0
 		set ChoiceResult to -1
-		set copyofplayer to player.createfullactorcopy
 		copyofplayer.AddScriptPackage TaxiTravel
 		copyofplayer.SetTravelHorse TaxiCab
-		player.DisablePlayerControls
-		player.SetActorAlpha 0
-		player.con_TCL
 		set cabeinuse to 1
- 
-		;SetLocalGravity 0
 	endif
 endif
 if eval (((player.GetAngle x) < -45) && (cabeinuse != 1)  && (ChoiceInProgress != 1))
 	TaxiCab.MoveTo player
 	TaxiCab.Enable
+	player.SetActorAlpha 0
+	set copyofplayer to player.createfullactorcopy
+	player.DisablePlayerControls
+	player.con_TCL
 	MessageBox "Where should I go?", "Bridge", "Tavern",  "Weye",  "Prior"
 	set ChoiceInProgress to 1
 endif
 if (cabeinuse == 1)
-	let zangle := TaxiCab.GetAngle Z
-	player.SetPos X (TaxiCab.GetPos X) + 100*Cos(zangle)
-	player.SetPos Y (TaxiCab.GetPos Y) + 100*Sin(zangle)
-	player.SetPos Z 50 + TaxiCab.GetPos Z 
+	;let zangle := TaxiCab.GetAngle Z
+	;player.SetPos X (TaxiCab.GetPos X) + 100*Cos(zangle)
+	;player.SetPos Y (TaxiCab.GetPos Y) + 100*Sin(zangle)
+	;player.SetPos Z 50 + TaxiCab.GetPos Z 
 	;player.SetAngle X TaxiCab.GetAngle X
-	player.SetAngle Z zangle
-	player.SetVelocity 0,0,- (GetLocalGravity Z) * ScriptEffectElapsedSeconds
+	
+	;player.Rotate Z ((player.GetAngle Z) - (TaxiCab.GetAngle Z))
+	;player.SetVelocity 0,0,- (GetLocalGravity Z) * ScriptEffectElapsedSeconds
+	let distance_mul := 200/(player.GetDistance TaxiCab)
+	let x_wanted := (distance_mul*(player.GetPos X) + (1.-distance_mul)*(TaxiCab.GetPos X))
+	let y_wanted := (distance_mul*(player.GetPos Y) + (1.-distance_mul)*(TaxiCab.GetPos Y))
+	let z_wanted := (distance_mul*(player.GetPos Z) + (1.-distance_mul)*(TaxiCab.GetPos Z))
+	let angle_wanted := atan2 ((TaxiCab.GetPos X)-(player.GetPos X)) ((TaxiCab.GetPos Y)-(player.GetPos Y))
+	player.SetAngle Z, angle_wanted
+	if eval ((player.GetVelocity X) == 0 && (player.GetVelocity Y) == 0 &&  (player.GetVelocity Z) == 0)
+			player.SetPos Z ((player.GetPos Z) + 0.1)
+	endif
+	if eval ((player.GetDistance TaxiCab) > 1000)
+			player.SetPos Z z_wanted
+			player.SetPos Y y_wanted
+			player.SetPos X x_wanted
+	endif
+	player.SetVelocity 20*(x_wanted - (player.GetPos X)) 20*(y_wanted - (player.GetPos Y)) 20*(z_wanted - (player.GetPos Z))
 endif
 if eval (((player.GetAngle x) > 30) && (cabeinuse == 1) && (autotravel != 1))
 	TaxiCab.Disable
@@ -57,7 +74,6 @@ if eval (((player.GetAngle x) > 30) && (cabeinuse == 1) && (autotravel != 1))
 	player.EnablePlayerControls
 	player.SetActorAlpha 1
 	player.con_TCL
-	SetLocalGravity oldgravity
 	set cabeinuse to 0
 endif
 end
