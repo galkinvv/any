@@ -1,0 +1,25 @@
+/targetenemyplayer [@target, noharm] [@target, dead]
+/cast shred
+
+
+#show Prowl
+/cast [nostealth,@player]Rejuvenation
+/cast [nostealth]Prowl
+
+
+/cast [mod:SELFCAST,@player][help]  Healing Surge;[harm]Lightning Bolt
+
+/cast [help]  [modifier:SELFCAST] Cleanse Spirit;Purge
+
+/use 2
+/cast [noform:1][@player] Cleanse Spirit
+
+/cast Wind Shear
+/cast Purge
+
+/targetenemyplayer [@target, noharm] [@target, dead]
+/cast flame shock
+
+/use Inherited Insignia of the Horde
+/cast [noform:1][@player] Cleanse Spirit 
+
